@@ -2,6 +2,8 @@
 
 Streamlit app that turns Square POS CSV exports into per-artist PDF commission reports.
 
+See here https://stockyardcsvtopdf-wqwwxkwjhrtdancycj5z8t.streamlit.app/
+
 ## Quick Start
 
 ```bash
