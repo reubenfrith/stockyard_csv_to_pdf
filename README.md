@@ -17,10 +17,10 @@ Opens in your browser at `http://localhost:8501`. Upload a CSV and download the 
 
 1. Upload a Square POS items export (CSV)
 2. The app parses the **Category** column to extract each artist's name and commission rate
-3. Sales are grouped by artist, and commission is calculated on **Net Sales**
+3. Sales are grouped by artist, and commission is calculated on **Gross Sales**
 4. Download a ZIP containing one PDF per artist in a `commission_reports/` folder
 
-Each PDF includes a table of that artist's sales (date, item, qty, net sales) and a commission summary showing total net sales, gallery commission, and artist payout.
+Each PDF includes a table of that artist's sales (date, item, qty, gross sales) and a commission summary showing total gross sales, gallery commission, and artist payout.
 
 
 ## Project Structure

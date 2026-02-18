@@ -29,7 +29,7 @@ class SaleRecord:
     date: str
     item: str
     qty: int
-    net_sales: float
+    gross_sales: float
 
 
 @dataclass
@@ -39,16 +39,16 @@ class ArtistReport:
     sales: list[SaleRecord] = field(default_factory=list)
 
     @property
-    def total_net_sales(self) -> float:
-        return round(sum(s.net_sales for s in self.sales), 2)
+    def total_gross_sales(self) -> float:
+        return round(sum(s.gross_sales for s in self.sales), 2)
 
     @property
     def gallery_commission(self) -> float:
-        return round(self.total_net_sales * self.commission_rate, 2)
+        return round(self.total_gross_sales * self.commission_rate, 2)
 
     @property
     def artist_payout(self) -> float:
-        return round(self.total_net_sales - self.gallery_commission, 2)
+        return round(self.total_gross_sales - self.gallery_commission, 2)
 
 
 # ---------------------------------------------------------------------------
@@ -115,7 +115,7 @@ def process_csv(
             skipped.append(row)
             continue
 
-        net_sales = parse_dollar(row.get("Net Sales", ""))
+        gross_sales = parse_dollar(row.get("Gross Sales", ""))
 
         try:
             qty = int(float(row.get("Qty", "0") or "0"))
@@ -126,7 +126,7 @@ def process_csv(
             date=row.get("Date", ""),
             item=row.get("Item", ""),
             qty=qty,
-            net_sales=net_sales,
+            gross_sales=gross_sales,
         )
 
         if artist_name not in artists:
@@ -195,7 +195,7 @@ def generate_artist_pdf(report: ArtistReport) -> bytes:
 
     # Sales table
     col_widths = [80, 250, 40, 90]
-    header_row = ["Date", "Item", "Qty", "Net Sales"]
+    header_row = ["Date", "Item", "Qty", "Gross Sales"]
     table_data: list[list[str]] = [header_row]
 
     for sale in report.sales:
@@ -204,12 +204,12 @@ def generate_artist_pdf(report: ArtistReport) -> bytes:
                 sale.date,
                 sale.item,
                 str(sale.qty),
-                f"${sale.net_sales:,.2f}",
+                f"${sale.gross_sales:,.2f}",
             ]
         )
 
     # Totals row
-    table_data.append(["", "TOTAL", "", f"${report.total_net_sales:,.2f}"])
+    table_data.append(["", "TOTAL", "", f"${report.total_gross_sales:,.2f}"])
 
     table = Table(table_data, colWidths=col_widths)
     style_commands = [
@@ -247,7 +247,7 @@ def generate_artist_pdf(report: ArtistReport) -> bytes:
     # Commission summary
     elements.append(
         Paragraph(
-            f"Total Net Sales: <b>${report.total_net_sales:,.2f}</b>",
+            f"Total Gross Sales: <b>${report.total_gross_sales:,.2f}</b>",
             summary_style,
         )
     )
@@ -303,7 +303,7 @@ if uploaded_file is not None:
     rows = list(reader)
 
     # Validate required columns
-    required_columns = {"Category", "Net Sales", "Item", "Qty", "Date"}
+    required_columns = {"Category", "Gross Sales", "Item", "Qty", "Date"}
     if rows:
         actual_columns = set(rows[0].keys())
         missing = required_columns - actual_columns
@@ -332,7 +332,7 @@ if uploaded_file is not None:
                     {
                         "Date": r.get("Date", ""),
                         "Item": r.get("Item", ""),
-                        "Net Sales": r.get("Net Sales", ""),
+                        "Gross Sales": r.get("Gross Sales", ""),
                     }
                     for r in skipped_rows
                 ]
@@ -347,7 +347,7 @@ if uploaded_file is not None:
                 {
                     "Artist": report.name,
                     "Commission Rate": f"{report.commission_rate:.0%}",
-                    "Total Net Sales": f"${report.total_net_sales:,.2f}",
+                    "Total Gross Sales": f"${report.total_gross_sales:,.2f}",
                     "Gallery Commission": f"${report.gallery_commission:,.2f}",
                     "Artist Payout": f"${report.artist_payout:,.2f}",
                 }
